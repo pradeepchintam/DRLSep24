@@ -49,6 +49,9 @@ class AdvisedRRTStar:
             new_node.parent = from_node
             return new_node
 
+    def random_sampling(self):
+        return Node(random.uniform(0, 10), random.uniform(0, 10))
+
     def advised_sampling(self):
         c_min = self.distance(self.start, self.goal)
         x_center = np.array([(self.start.x + self.goal.x) / 2.0, (self.start.y + self.goal.y) / 2.0])
@@ -71,6 +74,7 @@ class AdvisedRRTStar:
 
     def get_final_path(self, goal_node):
         path = []
+        path.append([self.goal.x, self.goal.y])
         node = goal_node
         while node.parent is not None:
             path.append([node.x, node.y])
@@ -89,12 +93,16 @@ class AdvisedRRTStar:
         ax.set_ylim([0, 10])
         ax.grid(True)
         ax.legend()
+        final_path = None
 
         for _ in range(self.max_iterations):
             # Advised sampling
-            random_node = self.advised_sampling()
+            if final_path:
+                random_node = self.advised_sampling()
+            else:
+                random_node = self.random_sampling()
             nearest_node = self.get_nearest_node(random_node)
-            new_node = self.steer(nearest_node, random_node, extend_length=1.0)
+            new_node = self.steer(nearest_node, random_node, extend_length=0.5)
 
             # If the new node is collision-free, add to the tree
             if self.is_collision_free(nearest_node, new_node):
@@ -105,25 +113,25 @@ class AdvisedRRTStar:
                 # Rewire the tree to optimize the path
                 for near_node in near_nodes:
                     if self.is_collision_free(new_node, near_node) and \
-                            self.distance(new_node, near_node) < self.distance(near_node, near_node.parent):
-                        near_node.parent = new_node
+                            self.distance(new_node, near_node) < self.distance(near_node, near_node.parent)+1:
+                        # Ensure no cycle is created
+                        if near_node != new_node.parent:
+                            near_node.parent = new_node
 
                 ax.plot([nearest_node.x, new_node.x], [nearest_node.y, new_node.y], 'g-')
                 plt.pause(0.01)
 
             # Check if we reached the goal
             if self.distance(new_node, self.goal) <= 1.0:
+                print("Goal reached!")
                 final_path = self.get_final_path(new_node)
                 ax.plot([node[0] for node in final_path], [node[1] for node in final_path], 'b-', linewidth=2)
                 plt.pause(0.01)
-                plt.ioff()
-                plt.show()
-                return final_path, len(self.node_list), self.compute_path_length(final_path)
 
         plt.ioff()
         plt.show()
         # Return empty if no path found
-        return None, len(self.node_list), float("inf")
+        return final_path, len(self.node_list), self.compute_path_length(final_path)
 
     def compute_path_length(self, path):
         length = 0
