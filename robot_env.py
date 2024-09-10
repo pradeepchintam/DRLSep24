@@ -2,39 +2,30 @@ import gymnasium as gym
 import numpy as np
 
 class RobotEnv(gym.Env):
-    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None):
+    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None, robot_pos=None, target_pos=None):
         super(RobotEnv, self).__init__()
-        # Define action space (e.g., move in four directions)
         self.action_space = gym.spaces.Discrete(4)  # [0: left, 1: right, 2: up, 3: down]
 
         # Observation space (robot position + dynamic obstacles positions)
         self.observation_space = gym.spaces.Box(low=0, high=10, shape=(2 + 2 * num_dynamic_obstacles,), dtype=np.float32)
 
         # Initialize robot, target, and dynamic obstacles
-        self.robot_pos = np.array([0.0, 0.0], dtype=np.float32)
-        self.target_pos = np.array([10.0, 10.0], dtype=np.float32)
+        self.robot_pos = np.array(robot_pos if robot_pos is not None else [0.0, 0.0], dtype=np.float32)
+        self.target_pos = np.array(target_pos if target_pos is not None else [10.0, 10.0], dtype=np.float32)
 
         # Dynamic obstacles: randomly placed at the start and move randomly
         self.num_dynamic_obstacles = num_dynamic_obstacles
         self.dynamic_obstacles = np.random.uniform(0, 10, (num_dynamic_obstacles, 2)).astype(np.float32)
 
-        # Static obstacles: fixed rectangular objects
-        if static_obstacles is None:
-            # Example: (x, y, width, height)
-            self.static_obstacles = [
-                (3.0, 3.0, 2.0, 2.0),  # A 2x2 rectangle at position (3, 3)
-                (7.0, 7.0, 1.0, 3.0)   # A 1x3 rectangle at position (7, 7)
-            ]
-        else:
-            self.static_obstacles = static_obstacles
+        self.static_obstacles = static_obstacles
 
         self.time_step = 0
         self.max_time_steps = 100
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self.robot_pos = np.array([0.0, 0.0], dtype=np.float32)
-        self.target_pos = np.array([10.0, 10.0], dtype=np.float32)
+        self.robot_pos = np.array(self.robot_pos, dtype=np.float32)
+        self.target_pos = np.array(self.target_pos, dtype=np.float32)
         self.dynamic_obstacles = np.random.uniform(0, 10, (self.num_dynamic_obstacles, 2)).astype(np.float32)
         self.time_step = 0
 
