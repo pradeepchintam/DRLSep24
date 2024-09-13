@@ -3,18 +3,17 @@ from robot_env import RobotEnv
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import advised_rrt_env as arrtenv
 
 # Load the trained model
 model = PPO.load("ppo_robot_navigation")
+envToUse = arrtenv.EnvA()
 
 # Define the same static rectangular obstacles as during training
-static_obstacles = [
-    (3.0, 3.0, 2.0, 2.0),
-    (7.0, 7.0, 1.0, 3.0)
-]
+static_obstacles = arrtenv.EnvA.obs_rectangle()
 
 # Initialize the environment for testing
-env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles)
+env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=envToUse.s_start, target_pos=envToUse.s_goal)
 
 # Function to draw static obstacles on the plot
 def draw_static_obstacles(static_obstacles):

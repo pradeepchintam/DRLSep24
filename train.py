@@ -1,14 +1,12 @@
 from stable_baselines3 import PPO
 from robot_env import RobotEnv
+import advised_rrt_env as arrtenv
 
-# Define some static rectangular obstacles
-static_obstacles = [
-    (3.0, 3.0, 2.0, 2.0),  # Static rectangular obstacle
-    (7.0, 7.0, 1.0, 3.0)   # Static rectangular obstacle
-]
+envToUse = arrtenv.EnvA()
+static_obstacles = arrtenv.EnvA.obs_rectangle()
 
 # Initialize the environment with dynamic and static obstacles
-env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles)
+env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=envToUse.s_start, target_pos=envToUse.s_goal)
 
 # Initialize the PPO model
 model = PPO("MlpPolicy", env, verbose=1)

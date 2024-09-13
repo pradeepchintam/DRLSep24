@@ -47,16 +47,16 @@ class EnvX:
 
 class EnvA:
     def __init__(self):
-        self.x_range = (0, 40)
-        self.y_range = (0, 40)
+        self.x_range = (0, 10)
+        self.y_range = (0, 10)
         self.obs_boundary = self.obs_boundary()
         self.obs_circle = self.obs_circle()
         self.obs_rectangle = self.obs_rectangle()
-        self.s_start = (12, 12) # Starting node
-        self.s_goal = (28, 28) # Goal node
-        self.step_len = 4
+        self.s_start = (1, 9) # Starting node
+        self.s_goal = (9, 9) # Goal node
+        self.step_len = 1
         self.goal_sample_rate = 0.05
-        self.search_radius = 10
+        self.search_radius = 3
         self.iter_max = 2000
         self.eta = 2
 
@@ -73,7 +73,7 @@ class EnvA:
     @staticmethod
     def obs_rectangle():
         obs_rectangle = [
-            [16, 12, 8, 16]
+            [3, 3, 4, 4]
         ]
 
         return obs_rectangle
