@@ -1,8 +1,9 @@
 import gymnasium as gym
 import numpy as np
 
+
 class RobotEnv(gym.Env):
-    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None, robot_pos=None, target_pos=None):
+    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None, robot_pos=None, target_pos=None, training = False):
         super(RobotEnv, self).__init__()
         self.action_space = gym.spaces.Discrete(4)  # [0: left, 1: right, 2: up, 3: down]
 
@@ -21,6 +22,7 @@ class RobotEnv(gym.Env):
 
         self.time_step = 0
         self.max_time_steps = 100
+        self.training = training
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -68,6 +70,12 @@ class RobotEnv(gym.Env):
 
         # Check if the episode is done (target reached or max steps)
         done = distance_to_target < 1 or self.time_step >= self.max_time_steps
+        if (distance_to_target < 0.5) & self.training:
+            # Update target position by a random value between 1 and 5
+
+            self.target_pos += np.random.uniform(-5, 5, 2).astype(np.float32)
+            self.target_pos = np.clip(self.target_pos, 0, 10)
+            print('Changing target position -------- ', self.target_pos)
 
         # Return state (robot and dynamic obstacle positions)
         state = np.concatenate([self.robot_pos, self.dynamic_obstacles.flatten()]).astype(np.float32)

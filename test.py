@@ -13,7 +13,7 @@ envToUse = arrtenv.EnvA()
 static_obstacles = arrtenv.EnvA.obs_rectangle()
 
 # Initialize the environment for testing
-env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=envToUse.s_start, target_pos=envToUse.s_goal)
+env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=envToUse.s_start, target_pos=envToUse.s_goal, training=False)
 
 # Function to draw static obstacles on the plot
 def draw_static_obstacles(static_obstacles):

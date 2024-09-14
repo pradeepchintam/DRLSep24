@@ -53,7 +53,7 @@ class EnvA:
         self.obs_circle = self.obs_circle()
         self.obs_rectangle = self.obs_rectangle()
         self.s_start = (1, 9) # Starting node
-        self.s_goal = (9, 9) # Goal node
+        self.s_goal = (9, 1) # Goal node
         self.step_len = 1
         self.goal_sample_rate = 0.05
         self.search_radius = 3
