@@ -12,8 +12,8 @@ envToUse = arrtenv.EnvA()
 # Define the same static rectangular obstacles as during training
 static_obstacles = arrtenv.EnvA.obs_rectangle()
 
-# Initialize the environment for testing
-env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=envToUse.s_start, target_pos=envToUse.s_goal, training=False)
+# Initialize the environment for testing with a dynamic target position
+env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=(1,1), target_pos=(1,9), training=False)
 
 # Function to draw static obstacles on the plot
 def draw_static_obstacles(static_obstacles):
@@ -68,12 +68,13 @@ def test_model_with_visualization(env, model, episodes=1):
             # Take a step in the environment
             obs, reward, done, _, info = env.step(action)
 
-            # Extract positions from the observation (robot and dynamic obstacles)
+            # Extract positions from the observation (robot, dynamic obstacles, and target)
             robot_pos = obs[:2]
-            dynamic_obstacles = obs[2:].reshape(-1, 2)
+            dynamic_obstacles = obs[2:-2].reshape(-1, 2)
+            target_pos = obs[-2:]
 
             # Plot the current state of the environment
-            plot_env(robot_pos, dynamic_obstacles, env.target_pos, env.static_obstacles)
+            plot_env(robot_pos, dynamic_obstacles, target_pos, env.static_obstacles)
 
             # Add a small delay to simulate real-time movement
             time.sleep(0.1)

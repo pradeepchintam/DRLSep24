@@ -3,12 +3,13 @@ import numpy as np
 
 
 class RobotEnv(gym.Env):
-    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None, robot_pos=None, target_pos=None, training = False):
+    def __init__(self, num_dynamic_obstacles=1, static_obstacles=None, robot_pos=None, target_pos=None, training=False):
         super(RobotEnv, self).__init__()
         self.action_space = gym.spaces.Discrete(4)  # [0: left, 1: right, 2: up, 3: down]
 
-        # Observation space (robot position + dynamic obstacles positions)
-        self.observation_space = gym.spaces.Box(low=0, high=10, shape=(2 + 2 * num_dynamic_obstacles,), dtype=np.float32)
+        # Observation space (robot position + dynamic obstacles positions + target position)
+        self.observation_space = gym.spaces.Box(low=0, high=10, shape=(4 + 2 * num_dynamic_obstacles,),
+                                                dtype=np.float32)
 
         # Initialize robot, target, and dynamic obstacles
         self.robot_pos = np.array(robot_pos if robot_pos is not None else [0.0, 0.0], dtype=np.float32)
@@ -27,12 +28,20 @@ class RobotEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.robot_pos = np.array(self.robot_pos, dtype=np.float32)
-        self.target_pos = np.array(self.target_pos, dtype=np.float32)
+
+        if self.training:
+            # Randomize the target position
+            self.target_pos = np.random.uniform(0, 10, 2).astype(np.float32)
+        else:
+            # Keep the target position constant for testing
+            self.target_pos = np.array(self.target_pos, dtype=np.float32)
+
         self.dynamic_obstacles = np.random.uniform(0, 10, (self.num_dynamic_obstacles, 2)).astype(np.float32)
         self.time_step = 0
 
-        # Return the robot position and dynamic obstacle positions
-        return np.concatenate([self.robot_pos, self.dynamic_obstacles.flatten()]).astype(np.float32), {}
+        # Return the robot position, dynamic obstacle positions, and target position
+        return np.concatenate([self.robot_pos, self.dynamic_obstacles.flatten(), self.target_pos]).astype(
+            np.float32), {}
 
     def step(self, action):
         self.time_step += 1
@@ -70,15 +79,9 @@ class RobotEnv(gym.Env):
 
         # Check if the episode is done (target reached or max steps)
         done = distance_to_target < 1 or self.time_step >= self.max_time_steps
-        if (distance_to_target < 0.5) & self.training:
-            # Update target position by a random value between 1 and 5
 
-            self.target_pos += np.random.uniform(-5, 5, 2).astype(np.float32)
-            self.target_pos = np.clip(self.target_pos, 0, 10)
-            print('Changing target position -------- ', self.target_pos)
-
-        # Return state (robot and dynamic obstacle positions)
-        state = np.concatenate([self.robot_pos, self.dynamic_obstacles.flatten()]).astype(np.float32)
+        # Return state (robot position, dynamic obstacle positions, and target position)
+        state = np.concatenate([self.robot_pos, self.dynamic_obstacles.flatten(), self.target_pos]).astype(np.float32)
         return state, reward, done, False, {}
 
     def _check_static_obstacle_collision(self):
