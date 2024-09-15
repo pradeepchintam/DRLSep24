@@ -57,16 +57,16 @@ class EnvA:
         self.step_len = 1
         self.goal_sample_rate = 0.05
         self.search_radius = 3
-        self.iter_max = 2000
+        self.iter_max = 400
         self.eta = 2
 
     @staticmethod
     def obs_boundary():
         obs_boundary = [
-            [0, 0, 1, 40],
-            [0, 40, 40, 1],
-            [1, 0, 40, 1],
-            [40, 1, 1, 40]
+            [0, 0, 0.1, 9.9],
+            [0, 9.9, 9.9, 0.1],
+            [1, 0, 9.9, 0.1],
+            [9.9, 0.1, 0.1, 9.9]
         ]
         return obs_boundary
 

@@ -12,8 +12,8 @@ envToUse = arrtenv.EnvA()
 # Define the same static rectangular obstacles as during training
 static_obstacles = arrtenv.EnvA.obs_rectangle()
 
-# Initialize the environment for testing with a dynamic target position
-env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=(1,1), target_pos=(1,9), training=False)
+# Define the array of positions
+positions = [[9, 1], [9.001215252898305, 1.9926872902740982], [7.148740804046848, 7.098337542851207], [1, 9]]
 
 # Function to draw static obstacles on the plot
 def draw_static_obstacles(static_obstacles):
@@ -52,13 +52,19 @@ def plot_env(robot_pos, dynamic_obstacles, target_pos, static_obstacles):
     plt.pause(0.1)
 
 # Function to test the model and visualize the navigation
-def test_model_with_visualization(env, model, episodes=1):
-    for ep in range(episodes):
+def test_model_with_visualization(env, model, positions):
+    plt.figure(figsize=(6, 6))
+    plt.ion()  # Turn on interactive mode for live plotting
+
+    for i in range(len(positions) - 1):
+        start_pos = positions[i]
+        target_pos = positions[i + 1]
+
+        # Initialize the environment for testing with the current start and target positions
+        env.robot_pos = np.array(start_pos, dtype=np.float32)
+        env.target_pos = np.array(target_pos, dtype=np.float32)
         obs, _ = env.reset()
         done = False
-
-        plt.figure(figsize=(6, 6))
-        plt.ion()  # Turn on interactive mode for live plotting
 
         # Loop through each step until the episode is done
         while not done:
@@ -79,9 +85,12 @@ def test_model_with_visualization(env, model, episodes=1):
             # Add a small delay to simulate real-time movement
             time.sleep(0.1)
 
-        # Close the plot after the episode is finished
-        plt.ioff()
-        plt.show()
+    # Keep the plot open after the last episode is finished
+    plt.ioff()
+    plt.show()
+
+# Initialize the environment for testing
+env = RobotEnv(num_dynamic_obstacles=3, static_obstacles=static_obstacles, robot_pos=positions[0], target_pos=positions[1], training=False)
 
 # Test the model with visualization
-test_model_with_visualization(env, model)
+test_model_with_visualization(env, model, positions)

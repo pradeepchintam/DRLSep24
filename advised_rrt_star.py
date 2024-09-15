@@ -546,7 +546,7 @@ class ARrtStar:
                 plt.gca().add_patch(circle1)
 
 def main():
-    envToUse = env.EnvA()
+    envToUse = advised_rrt_env.EnvA()
     path = None#rrt_conn.planning()
     rrt_star = ARrtStar(path, envToUse, 0.2)
     print(rrt_star.planning())
